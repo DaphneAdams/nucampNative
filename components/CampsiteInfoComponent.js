@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
-import { Card } from 'react-native-elements';
+import { Text, View, ScrollView, FlatList } from 'react-native';
+import { Card, Icon } from 'react-native-elements';
 import { CAMPSITES } from '../shared/campsites';
+import { COMMENTS } from '../shared/comments';
 
-function RenderCampsite({ campsite }) {
+function RenderCampsite(props) {
+
+    const { campsite } = props;
 
     if (campsite) {
         return (
@@ -14,19 +17,60 @@ function RenderCampsite({ campsite }) {
                 <Text style={{ margin: 10 }}>
                     {campsite.description}
                 </Text>
+                <Icon
+                    name={props.favorite ? 'heart' : 'heart-o'}
+                    type='font-awesome'
+                    color='#f50'
+                    raised
+                    reverse
+                    onPress={() => props.favorite ?
+                        console.log('Already set as a favorite') : props.markFavorite()}
+                />
             </Card>
         );
     }
     return <View />;
 }
 
+/* Because it's gonna return an array, we use Flatlist */
+function RenderComments({ comments }) {
+
+    const renderCommentItem = ({ item }) => {
+        return (
+            <View style={{ margin: 10 }}>
+                <Text style={{ fontSize: 14 }}>{item.text}</Text>
+                <Text style={{ fontSize: 12 }}>{item.rating} Stars</Text>
+                <Text style={{ fontSize: 12 }}>{`-- ${item.author}, ${item.date}`}</Text>
+            </View>
+        );
+    };
+
+    /* The data for the flatlist comes from the new comments array we created from render function below  */
+    return (
+        <Card title='Comments'>
+            <FlatList
+                data={comments}
+                renderItem={renderCommentItem}
+                keyExtractor={item => item.id.toString()}
+            />
+        </Card>
+    );
+}
+
+
 class CampsiteInfo extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            campsites: CAMPSITES
+            campsites: CAMPSITES,
+            comments: COMMENTS, /* brought comments array into local state of campsiteInfo component as this.state.comments */
+            favorite: false
         };
+    }
+
+    markFavorite() {
+        this.setState({ favorite: true });
     }
 
     static navigationOptions = {
@@ -36,7 +80,17 @@ class CampsiteInfo extends Component {
     render() {
         const campsiteId = this.props.navigation.getParam('campsiteId');
         const campsite = this.state.campsites.filter(campsite => campsite.id === campsiteId)[0];
-        return <RenderCampsite campsite={campsite} />;
+        const comments = this.state.comments.filter(comment => comment.campsiteId === campsiteId);
+        /* Filtering out only the comments from the particular campiste we want to render, using campsiteId, into a new comments array. Pass that new array into RenderComments component below*/
+        return (
+            <ScrollView>
+                <RenderCampsite campsite={campsite}
+                    favorite={this.state.favorite}
+                    markFavorite={() => this.markFavorite()}
+                />
+                <RenderComments comments={comments} />
+            </ScrollView>
+        );
     }
 }
 
