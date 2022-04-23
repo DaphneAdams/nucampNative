@@ -16,7 +16,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {
     postFavorite: campsiteId => (postFavorite(campsiteId)),
-    postComment: (campsiteId, rating, author, text) => (postComment(campsiteId, rating, author, text))
+    postComment: (campsiteId, rating, author, text) => postComment(campsiteId, rating, author, text)
 };
 
 function RenderCampsite(props) {
@@ -87,7 +87,7 @@ function RenderCampsite(props) {
                                 console.log('Already set as a favorite') : props.markFavorite()}
                         />
                         <Icon
-                            name='pencil'
+                            name={'pencil'}
                             type='font-awesome'
                             color='#5637DD'
                             raised
@@ -108,14 +108,17 @@ function RenderComments({ comments }) {
     const renderCommentItem = ({ item }) => {
         return (
             <View style={{ margin: 10 }}>
-                <Text style={{ fontSize: 14 }}>{item.text}</Text>
+                <Text style={{ fontSize: 14 }}>{item.text}
+                </Text>
                 <Rating
                     startingValue={item.rating}
                     imageSize={10}
                     style={{ alignItems: 'flex-start', paddingVertical: '5%' }}
                     readonly
                 />
-                <Text style={{ fontSize: 12 }}>{`-- ${item.author}, ${item.date}`}</Text>
+                <Text style={{ fontSize: 12 }}>
+                    {`-- ${item.author}, ${item.date}`}
+                </Text>
             </View>
         );
     };
@@ -152,8 +155,8 @@ class CampsiteInfo extends Component {
         this.setState({ showModal: !this.state.showModal });
     }
 
-    handleComment(campsiteId, rating, author, text) {
-        this.props.postComment(campsiteId, rating, author, text);
+    handleComment(campsiteId) {
+        this.props.postComment(campsiteId, this.state.rating, this.state.author, this.state.text);
         this.toggleModal();
     }
 
